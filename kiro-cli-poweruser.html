@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiro CLI v2 — Power User Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0b0c10;
+    --surface: #13141a;
+    --surface2: #1c1e27;
+    --border: #2a2d3a;
+    --accent: #7c6af7;
+    --accent2: #3ecfcf;
+    --accent3: #f97316;
+    --text: #e8e9f0;
+    --muted: #6b7280;
+    --code-bg: #0d0f14;
+    --green: #4ade80;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --pill1: #7c6af722;
+    --pill1b: #7c6af7;
+    --pill2: #3ecfcf22;
+    --pill2b: #3ecfcf;
+    --pill3: #f9731622;
+    --pill3b: #f97316;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+
+  /* Layout */
+  .shell {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 28px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-logo {
+    padding: 0 20px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+
+  .sidebar-logo .wordmark {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+
+  .sidebar-logo .sub {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-top: 2px;
+  }
+
+  .nav-group-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    color: var(--muted);
+    padding: 8px 20px 4px;
+    font-weight: 500;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .nav-item {
+    display: block;
+    padding: 7px 20px;
+    font-size: 0.82rem;
+    color: #9ca3af;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+    text-decoration: none;
+    font-weight: 400;
+  }
+
+  .nav-item:hover {
+    color: var(--text);
+    background: var(--surface2);
+  }
+
+  .nav-item.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: #7c6af708;
+  }
+
+  /* Main */
+  .main {
+    flex: 1;
+    padding: 48px 56px;
+    max-width: 900px;
+  }
+
+  /* Header */
+  .page-header {
+    margin-bottom: 48px;
+  }
+
+  .tier-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    background: var(--pill1);
+    border: 1px solid #7c6af730;
+    border-radius: 4px;
+    padding: 3px 10px;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2.4rem;
+    color: var(--text);
+    line-height: 1.15;
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+  }
+
+  h1 .accent { color: var(--accent); }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.95rem;
+    max-width: 520px;
+  }
+
+  /* Sections */
+  .section {
+    display: none;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .section.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Section headers */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .section-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .icon-purple { background: var(--pill1); }
+  .icon-teal { background: var(--pill2); }
+  .icon-orange { background: var(--pill3); }
+  .icon-green { background: #4ade8020; }
+  .icon-yellow { background: #fbbf2420; }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: -0.5px;
+  }
+
+  .section-desc {
+    color: var(--muted);
+    font-size: 0.88rem;
+    margin-top: 2px;
+  }
+
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+    margin: 28px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  h3::before {
+    content: '';
+    width: 3px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+    display: inline-block;
+  }
+
+  p {
+    font-size: 0.88rem;
+    color: #b0b5c3;
+    margin-bottom: 12px;
+    line-height: 1.7;
+  }
+
+  /* Cards */
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    transition: border-color 0.15s;
+  }
+
+  .card:hover { border-color: #3a3d52; }
+
+  .card-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-bottom: 8px;
+    display: inline-block;
+  }
+
+  .tag-purple { background: var(--pill1); color: var(--pill1b); }
+  .tag-teal { background: var(--pill2); color: var(--pill2b); }
+  .tag-orange { background: var(--pill3); color: var(--pill3b); }
+  .tag-green { background: #4ade8018; color: var(--green); }
+  .tag-yellow { background: #fbbf2418; color: var(--yellow); }
+  .tag-red { background: #f8717118; color: var(--red); }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+
+  .card-body {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Code blocks */
+  pre, .codeblock {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: #c9d1e9;
+    overflow-x: auto;
+    margin: 12px 0 20px;
+    position: relative;
+  }
+
+  .codeblock .comment { color: #4b5263; }
+  .codeblock .key { color: var(--accent2); }
+  .codeblock .val { color: #e5c07b; }
+  .codeblock .str { color: #98c379; }
+  .codeblock .punct { color: var(--muted); }
+  .codeblock .cmd { color: var(--accent); }
+  .codeblock .flag { color: var(--accent3); }
+
+  .codeblock .label {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 0.6rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Slash command table */
+  .cmd-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin: 12px 0 24px;
+  }
+
+  .cmd-table th {
+    text-align: left;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 12px;
+    font-weight: 500;
+  }
+
+  .cmd-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #1e2030;
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .cmd-table tr:last-child td { border-bottom: none; }
+  .cmd-table tr:hover td { background: var(--surface2); }
+
+  .cmd-name {
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+    white-space: nowrap;
+    font-size: 0.8rem;
+  }
+
+  .cmd-desc { color: #9ca3af; }
+
+  /* Tip boxes */
+  .tip {
+    border-left: 3px solid var(--accent2);
+    background: #3ecfcf08;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 0.83rem;
+    color: #b0b5c3;
+  }
+
+  .tip strong { color: var(--accent2); font-weight: 500; }
+
+  .warn {
+    border-left: 3px solid var(--accent3);
+    background: #f9731608;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 0.83rem;
+    color: #b0b5c3;
+  }
+
+  .warn strong { color: var(--accent3); font-weight: 500; }
+
+  /* Experiment badges */
+  .exp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 12px 0 24px;
+  }
+
+  .exp-item {
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+
+  .exp-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--yellow);
+    margin-bottom: 4px;
+  }
+
+  .exp-desc {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Hooks lifecycle */
+  .lifecycle {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 12px 0 24px;
+    position: relative;
+  }
+
+  .lifecycle::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 12px;
+    bottom: 12px;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .lifecycle-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 10px 0;
+    position: relative;
+  }
+
+  .lifecycle-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-family: 'DM Mono', monospace;
+    flex-shrink: 0;
+    z-index: 1;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+  }
+
+  .lifecycle-dot.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  .lifecycle-content { padding-top: 4px; }
+
+  .lifecycle-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .lifecycle-detail {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  /* Priority matrix */
+  .matrix {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 12px 0 24px;
+  }
+
+  .matrix-cell {
+    background: var(--surface);
+    padding: 16px;
+  }
+
+  .matrix-cell .q {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 6px;
+  }
+
+  .matrix-cell .q-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .matrix-cell ul {
+    font-size: 0.78rem;
+    color: var(--muted);
+    list-style: none;
+    line-height: 1.7;
+  }
+
+  .matrix-cell ul li::before {
+    content: '→ ';
+    color: var(--accent);
+  }
+
+  /* Workflow strip */
+  .workflow {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 12px 0 20px;
+  }
+
+  .wf-step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 0.78rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--text);
+  }
+
+  .wf-arrow {
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3a3d52; }
+
+  @media (max-width: 800px) {
+    .sidebar { display: none; }
+    .main { padding: 24px 20px; }
+    .cards, .exp-grid { grid-template-columns: 1fr; }
+    .matrix { grid-template-columns: 1fr; }
+    h1 { font-size: 1.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="wordmark">⚡ kiro cli</div>
+    <div class="sub">Power User Guide · v2</div>
+  </div>
+
+  <div class="nav-group-label">Foundations</div>
+  <a class="nav-item active" onclick="show('overview')">Overview & Mental Model</a>
+  <a class="nav-item" onclick="show('slash')">Slash Commands</a>
+  <a class="nav-item" onclick="show('context')">Context & @path</a>
+
+  <div class="nav-group-label">Intermediate</div>
+  <a class="nav-item" onclick="show('steering')">Steering Files</a>
+  <a class="nav-item" onclick="show('agents')">Custom Agents</a>
+  <a class="nav-item" onclick="show('hooks')">Hooks (Automation)</a>
+
+  <div class="nav-group-label">Advanced</div>
+  <a class="nav-item" onclick="show('subagents')">Subagents & Parallel</a>
+  <a class="nav-item" onclick="show('codeintel')">Code Intelligence</a>
+  <a class="nav-item" onclick="show('experiments')">Experimental Features</a>
+  <a class="nav-item" onclick="show('headless')">Headless & CI/CD</a>
+
+  <div class="nav-group-label">Nick's Playbook</div>
+  <a class="nav-item" onclick="show('playbook')">Agentic + MCP Recipes</a>
+</nav>
+
+<!-- Main Content -->
+<main class="main">
+
+<!-- OVERVIEW -->
+<div id="section-overview" class="section active">
+  <div class="page-header">
+    <div class="tier-badge">⚡ Power User Guide</div>
+    <h1>Max out <span class="accent">Kiro CLI v2</span></h1>
+    <p class="subtitle">Move from "ask questions" to orchestrating autonomous multi-agent workflows. Every feature, pattern, and trick — structured for a senior engineer's workflow.</p>
+  </div>
+
+  <div class="section-header">
+    <div class="section-icon icon-purple">🧠</div>
+    <div>
+      <div class="section-title">Mental Model</div>
+      <div class="section-desc">How Kiro CLI v2 actually works under the hood</div>
+    </div>
+  </div>
+
+  <p>Kiro CLI is not a chat wrapper. It's a <strong>directory-aware agent runtime</strong> with a layered context system, lifecycle hooks, and first-class support for parallel task execution. The more of these layers you configure, the less you prompt.</p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-tag tag-purple">Layer 1</div>
+      <div class="card-title">Global Steering (~/.kiro)</div>
+      <div class="card-body">Always-on personal conventions. Your coding style, commit format, PR preferences. Follows you to every workspace.</div>
+    </div>
+    <div class="card">
+      <div class="card-tag tag-teal">Layer 2</div>
+      <div class="card-title">Workspace Steering (.kiro/steering/)</div>
+      <div class="card-body">Project-specific patterns. API conventions, testing standards, domain knowledge per repo.</div>
+    </div>
+    <div class="card">
+      <div class="card-tag tag-orange">Layer 3</div>
+      <div class="card-title">Custom Agent Config</div>
+      <div class="card-body">Role-specific personas with locked tool permissions, scoped file access, and embedded resources.</div>
+    </div>
+    <div class="card">
+      <div class="card-tag tag-green">Layer 4</div>
+      <div class="card-title">Hooks (Lifecycle)</div>
+      <div class="card-body">Commands that fire on spawn, prompt submit, pre/post tool use, and stop. Fully automated side effects.</div>
+    </div>
+  </div>
+
+  <div class="tip"><strong>Key insight:</strong> Every prompt you type that starts with "remember we use..." or "please follow our pattern for..." is context that should be in a steering file. Stop re-explaining. Encode it once.</div>
+
+  <h3>The Upgrade Path</h3>
+  <div class="workflow">
+    <div class="wf-step">Ask questions</div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step">Use @path + /editor</div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step">Steering files</div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step">Custom agents</div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step">Hooks + Subagents</div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step">Headless CI/CD</div>
+  </div>
+
+  <p>Each step multiplies the leverage of everything before it. Use the sidebar to work through each layer.</p>
+</div>
+
+<!-- SLASH COMMANDS -->
+<div id="section-slash" class="section">
+  <div class="section-header">
+    <div class="section-icon icon-purple">⌨️</div>
+    <div>
+      <div class="section-title">Slash Commands</div>
+      <div class="section-desc">The full in-session command vocabulary</div>
+    </div>
+  </div>
+
+  <table class="cmd-table">
+    <thead>
+      <tr><th>Command</th><th>What it does</th><th>Power tip</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="cmd-name">/editor</td>
+        <td class="cmd-desc">Open $EDITOR for long-form prompt input</td>
+        <td class="cmd-desc">Use for complex PRD-style prompts. Write the full spec, paste it, let the agent plan.</td>
+      </tr>
+      <tr>
+        <td class="cmd-name">/context add</td>
+        <td class="cmd-desc">Inject a file or URL into current session context</td>
+        <td class="cmd-desc">Pull in a ticket, PR diff, or design doc mid-conversation.</td>
+      </tr>
+      <tr>
+        <td class="cmd-name">/context show</td>
+        <td class="cmd-desc">List everything currently in the context window</td>
+        <td class="cmd-desc">Audit what the agent actually knows before a big task.</td>
+      </tr>
+      <tr>
+        <td class="cmd-name">/agent swap</td>
+        <td class="cmd-desc">Switch to a different custom agent in-session</td>
+        <td class="cmd-desc">Start with default, gather info, then swap to specialist agent for the actual work.</td>
+      </tr>
+      <tr>
+        <td class="cmd-name">/chat new</td>
+        <td class="cmd-desc">Fresh conversation, keep working in same terminal</td>
+        <td class="cmd-desc">Parallel work — start new thread without losing your current session.</td>
+      </tr>
+      <tr>
+        <td class="cmd-name">/save [name]</td>
+        <td class="cmd-desc">Persist current conversation to disk</td>
+        <td class="cmd-desc">Checkpoint before exploring a risky approach. Load it back if things go wrong.</td>
+      </tr>
+      <tr>
+        <td class="cmd-name">/load [name]</td>
+        <td class="cmd-desc">Restore a saved conversation</td>
+        <td class="cmd-desc">Resume a complex multi-step investigation exactly where you left it.</td>
+      </tr>
+      <tr>
+        <td class="cmd-name">/code init</td>
+        <td class="cmd-desc">Initialize LSP for the current workspace</td>
+        <td class="cmd-desc">Unlocks find-references, rename, hover docs. Run once per project.</td>
+      </tr>
+      <tr>
+        <td class="cmd-name">/experiment</td>
+        <td class="cmd-desc">Toggle experimental features on/off</td>
+        <td class="cmd-desc">Enable persistent memory, TODO tracking, extended reasoning.</td>
+      </tr>
+      <tr>
+        <td class="cmd-name">/introspect</td>
+        <td class="cmd-desc">Ask Kiro about its own capabilities</td>
+        <td class="cmd-desc">Always accurate — pulls from live docs, not training data.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Power Combo: /editor + /agent swap</h3>
+  <p>Write a detailed spec in <code>/editor</code> using a planning agent, then <code>/agent swap</code> to your implementation agent to execute it. Separates intent from execution.</p>
+</div>
+
+<!-- CONTEXT -->
+<div id="section-context" class="section">
+  <div class="section-header">
+    <div class="section-icon icon-teal">📁</div>
+    <div>
+      <div class="section-title">Context & @path Injection</div>
+      <div class="section-desc">Eliminate context-gathering prompts. Inject exactly what the agent needs.</div>
+    </div>
+  </div>
+
+  <h3>@path Inline Injection</h3>
+  <p>Reference files or directories directly in your prompt. Content expands before sending — no tool call, no extra tokens used on navigation.</p>
+
+  <div class="codeblock">
+<span class="label">in-prompt</span>
+<span class="comment"># Inject a single file</span>
+Review @src/handlers/checkout.py for security issues
+
+<span class="comment"># Inject a directory tree</span>
+What's the structure of @src/api/ and which module handles auth?
+
+<span class="comment"># Combine multiple files</span>
+Compare @src/old-service.py and @src/new-service.py — what changed?</div>
+
+  <h3>Session Context Management</h3>
+  <div class="codeblock">
+<span class="label">slash commands</span>
+<span class="cmd">/context add</span> https://your-wiki.internal/page-123
+<span class="cmd">/context add</span> ./docs/api-spec.md
+<span class="cmd">/context show</span>    <span class="comment"># audit current window</span></div>
+
+  <div class="tip"><strong>Token discipline:</strong> Use @path for files you need <em>read</em>, /context add for reference docs, and knowledge bases (in custom agents) for searchable corpora. Don't dump everything into the chat window.</div>
+
+  <h3>Knowledge Bases (in Custom Agents)</h3>
+  <p>For large doc sets (internal wikis, architecture docs, ADRs), configure a knowledge base resource in your agent. Kiro semantically indexes and retrieves — far more efficient than injecting whole directories.</p>
+
+  <div class="codeblock">
+<span class="label">agent config</span>
+<span class="key">"resources"</span>: [
+  {
+    <span class="key">"type"</span>: <span class="str">"knowledgeBase"</span>,
+    <span class="key">"source"</span>: <span class="str">"file://./docs"</span>,
+    <span class="key">"name"</span>: <span class="str">"ArchDocs"</span>,
+    <span class="key">"description"</span>: <span class="str">"Architecture decisions and runbooks"</span>,
+    <span class="key">"indexType"</span>: <span class="str">"best"</span>,
+    <span class="key">"autoUpdate"</span>: <span class="val">true</span>
+  }
+]</div>
+
+  <h3>Multi-Session Picker</h3>
+  <p>Kiro v2 supports multiple concurrent sessions. Use the interactive session picker to switch between ongoing investigations — great for keeping "debug prod" separate from "implement feature X".</p>
+</div>
+
+<!-- STEERING -->
+<div id="section-steering" class="section">
+  <div class="section-header">
+    <div class="section-icon icon-orange">🎯</div>
+    <div>
+      <div class="section-title">Steering Files</div>
+      <div class="section-desc">Persistent knowledge that eliminates repetitive prompting forever</div>
+    </div>
+  </div>
+
+  <p>Steering files are markdown docs in <code>.kiro/steering/</code> (workspace) or <code>~/.kiro/steering/</code> (global). Kiro loads them automatically on every session. One-time investment, infinite payoff.</p>
+
+  <h3>Global Steering (~/.kiro/steering/)</h3>
+  <p>Your personal engineering constitution. Applies everywhere.</p>
+
+  <div class="codeblock">
+<span class="label">~/.kiro/steering/preferences.md</span>
+<span class="comment"># My Engineering Preferences
+
+## Code style
+- Python: Black formatting, type hints everywhere, docstrings for public methods
+- Always prefer explicit over implicit
+- Error messages must include context and recovery hint
+
+## Commit format
+- Conventional commits: feat/fix/chore/refactor/docs
+- Subject line ≤72 chars, imperative mood
+- Always reference ticket ID if one exists
+
+## PR discipline
+- PRs should be small and focused; split if >400 lines changed
+- Tests must pass before requesting review
+- Include "Testing" section in PR body
+
+## Reviewing code
+- Prioritize: correctness > security > performance > style
+- Call out magic numbers, missing error handling, N+1 queries</span></div>
+
+  <h3>Workspace Steering (.kiro/steering/)</h3>
+  <p>Project-specific context. The agent always knows your stack.</p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-tag tag-purple">api-patterns.md</div>
+      <div class="card-title">API Conventions</div>
+      <div class="card-body">Your request/response shapes, error format, auth patterns, versioning strategy.</div>
+    </div>
+    <div class="card">
+      <div class="card-tag tag-teal">testing-standards.md</div>
+      <div class="card-title">Testing Standards</div>
+      <div class="card-body">Unit vs integration split, mock approach, required coverage, fixture patterns.</div>
+    </div>
+    <div class="card">
+      <div class="card-tag tag-orange">infra-context.md</div>
+      <div class="card-title">Infrastructure Context</div>
+      <div class="card-body">AWS services in use, Lambda constraints, env vars, deployment flow, key ARNs format.</div>
+    </div>
+    <div class="card">
+      <div class="card-tag tag-green">domain-model.md</div>
+      <div class="card-title">Domain Model</div>
+      <div class="card-body">Core entities, relationships, business rules. Agent understands your domain without explanation.</div>
+    </div>
+  </div>
+
+  <div class="tip"><strong>Pro move:</strong> Ask Kiro to generate its own steering file. Prompt: "Analyze this codebase and create a .kiro/steering/patterns.md that captures our key patterns and conventions." Then review and commit it.</div>
+
+  <h3>AGENTS.md Standard</h3>
+  <p>Kiro supports the cross-tool AGENTS.md format. If you work across multiple AI tools (Cursor, Claude Code, etc.), a root-level AGENTS.md is always picked up — no config needed.</p>
+</div>
+
+<!-- CUSTOM AGENTS -->
+<div id="section-agents" class="section">
+  <div class="section-header">
+    <div class="section-icon icon-purple">🤖</div>
+    <div>
+      <div class="section-title">Custom Agents</div>
+      <div class="section-desc">Role-specific agents with scoped tools, context, and personas</div>
+    </div>
+  </div>
+
+  <p>Agents are JSON configs in <code>.kiro/agents/</code>. Each agent has a focused persona, pre-approved tools, scoped file access, and embedded resources. Switch mid-session with <code>/agent swap</code>.</p>
+
+  <h3>Example: AWS/Lambda Specialist</h3>
+  <p>Knows your infra, has AWS tool access, scoped to infrastructure paths only.</p>
+
+  <div class="codeblock">
+<span class="label">.kiro/agents/aws-specialist.json</span>{
+  <span class="key">"name"</span>: <span class="str">"aws-specialist"</span>,
+  <span class="key">"description"</span>: <span class="str">"Lambda, Step Functions, CloudWatch expert"</span>,
+  <span class="key">"model"</span>: <span class="str">"claude-sonnet-4"</span>,
+  <span class="key">"prompt"</span>: <span class="str">"You are an AWS expert specializing in Lambda, Step Functions, and observability. You know this team uses ADOT Lambda layer, EMF for metrics, and X-Ray for tracing. Always consider cold start impact and Lambda's hard-kill behavior when suggesting solutions."</span>,
+  <span class="key">"tools"</span>: [<span class="str">"read"</span>, <span class="str">"write"</span>, <span class="str">"shell"</span>, <span class="str">"aws"</span>],
+  <span class="key">"allowedTools"</span>: [<span class="str">"read"</span>, <span class="str">"aws"</span>],
+  <span class="key">"toolsSettings"</span>: {
+    <span class="key">"aws"</span>: { <span class="key">"allowedServices"</span>: [<span class="str">"lambda"</span>, <span class="str">"logs"</span>, <span class="str">"xray"</span>, <span class="str">"cloudformation"</span>] },
+    <span class="key">"write"</span>: { <span class="key">"allowedPaths"</span>: [<span class="str">"infrastructure/**"</span>, <span class="str">"*.yaml"</span>] }
+  },
+  <span class="key">"resources"</span>: [
+    <span class="str">"file://.kiro/steering/**/*.md"</span>,
+    <span class="str">"file://infrastructure/**/*.yaml"</span>,
+    <span class="str">"file://docs/runbooks/**"</span>
+  ],
+  <span class="key">"hooks"</span>: {
+    <span class="key">"agentSpawn"</span>: [{ <span class="key">"command"</span>: <span class="str">"aws sts get-caller-identity"</span>, <span class="key">"cache_ttl_seconds"</span>: 300 }]
+  }
+}</div>
+
+  <h3>Example: Code Review Agent</h3>
+
+  <div class="codeblock">
+<span class="label">.kiro/agents/code-review.json</span>{
+  <span class="key">"name"</span>: <span class="str">"code-review"</span>,
+  <span class="key">"prompt"</span>: <span class="str">"You are a senior code reviewer. Focus on: correctness, security, missing error handling, performance anti-patterns, and adherence to team standards in the steering files."</span>,
+  <span class="key">"tools"</span>: [<span class="str">"read"</span>, <span class="str">"shell"</span>],
+  <span class="key">"toolsSettings"</span>: {
+    <span class="key">"shell"</span>: {
+      <span class="key">"allowedCommands"</span>: [<span class="str">"git diff"</span>, <span class="str">"git log"</span>, <span class="str">"grep"</span>, <span class="str">"find"</span>, <span class="str">"eslint"</span>, <span class="str">"pylint"</span>]
+    }
+  },
+  <span class="key">"resources"</span>: [
+    <span class="str">"file://CONTRIBUTING.md"</span>,
+    <span class="str">"file://.kiro/steering/**/*.md"</span>
+  ],
+  <span class="key">"hooks"</span>: {
+    <span class="key">"agentSpawn"</span>: [{ <span class="key">"command"</span>: <span class="str">"git diff --name-only HEAD~1"</span> }]
+  }
+}</div>
+
+  <h3>Agent Roster Strategy</h3>
+  <div class="matrix">
+    <div class="matrix-cell">
+      <div class="q">Agent</div>
+      <div class="q-val" style="color:var(--accent)">Planner</div>
+      <ul><li>Read-only tools</li><li>Full steering context</li><li>Generates implementation plans</li><li>No write access</li></ul>
+    </div>
+    <div class="matrix-cell">
+      <div class="q">Agent</div>
+      <div class="q-val" style="color:var(--accent2)">Implementer</div>
+      <ul><li>Read + Write + Shell</li><li>Scoped to src/ paths</li><li>LSP enabled</li><li>auto-test on stop hook</li></ul>
+    </div>
+    <div class="matrix-cell">
+      <div class="q">Agent</div>
+      <div class="q-val" style="color:var(--accent3)">Reviewer</div>
+      <ul><li>Read + Shell (linters only)</li><li>Loads coding standards</li><li>Spawns on agentSpawn: git diff</li><li>Comments on MCP ticket tools</li></ul>
+    </div>
+    <div class="matrix-cell">
+      <div class="q">Agent</div>
+      <div class="q-val" style="color:var(--green)">Debugger</div>
+      <ul><li>Read + AWS tools</li><li>Loads runbooks KB</li><li>Access to CloudWatch logs</li><li>Incident-focused prompt</li></ul>
+    </div>
+  </div>
+</div>
+
+<!-- HOOKS -->
+<div id="section-hooks" class="section">
+  <div class="section-header">
+    <div class="section-icon icon-teal">🔗</div>
+    <div>
+      <div class="section-title">Hooks (Automation)</div>
+      <div class="section-desc">Lifecycle-driven automation. Like GitHub Actions, but for your local agent.</div>
+    </div>
+  </div>
+
+  <p>Hooks fire at defined lifecycle points and receive event JSON via STDIN. Return exit 0 to succeed, exit 2 from a preToolUse hook to <strong>block</strong> the tool call entirely.</p>
+
+  <h3>Lifecycle Points</h3>
+  <div class="lifecycle">
+    <div class="lifecycle-step">
+      <div class="lifecycle-dot active">1</div>
+      <div class="lifecycle-content">
+        <div class="lifecycle-name">agentSpawn</div>
+        <div class="lifecycle-detail">Fires when agent activates. Inject git status, caller identity, last deploy info into context.</div>
+      </div>
+    </div>
+    <div class="lifecycle-step">
+      <div class="lifecycle-dot active">2</div>
+      <div class="lifecycle-content">
+        <div class="lifecycle-name">userPromptSubmit</div>
+        <div class="lifecycle-detail">Fires on every prompt. Auto-inject dynamic context: open tickets, env state, recent errors.</div>
+      </div>
+    </div>
+    <div class="lifecycle-step">
+      <div class="lifecycle-dot active">3</div>
+      <div class="lifecycle-content">
+        <div class="lifecycle-name">preToolUse</div>
+        <div class="lifecycle-detail">Fires before any tool call. Validate, audit-log, or <strong>block</strong> dangerous operations (exit 2).</div>
+      </div>
+    </div>
+    <div class="lifecycle-step">
+      <div class="lifecycle-dot active">4</div>
+      <div class="lifecycle-content">
+        <div class="lifecycle-name">postToolUse</div>
+        <div class="lifecycle-detail">Fires after tool execution. Auto-format written files, trigger linters, sync state.</div>
+      </div>
+    </div>
+    <div class="lifecycle-step">
+      <div class="lifecycle-dot active">5</div>
+      <div class="lifecycle-content">
+        <div class="lifecycle-name">stop</div>
+        <div class="lifecycle-detail">Fires when agent finishes responding. Run tests, compile, send notifications, update tickets.</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>High-Value Hook Patterns</h3>
+
+  <div class="codeblock">
+<span class="label">auto-format on write</span><span class="key">"postToolUse"</span>: [
+  {
+    <span class="key">"matcher"</span>: <span class="str">"fs_write"</span>,
+    <span class="key">"command"</span>: <span class="str">"black . --quiet && isort . --quiet"</span>
+  }
+]</div>
+
+  <div class="codeblock">
+<span class="label">run tests on stop</span><span class="key">"stop"</span>: [
+  { <span class="key">"command"</span>: <span class="str">"npm test -- --passWithNoTests"</span> }
+]</div>
+
+  <div class="codeblock">
+<span class="label">audit all bash commands (preToolUse)</span><span class="key">"preToolUse"</span>: [
+  {
+    <span class="key">"matcher"</span>: <span class="str">"execute_bash"</span>,
+    <span class="key">"command"</span>: <span class="str">"{ echo \"$(date) [$SESSION_ID] CMD:\"; cat; } >> ~/.kiro/audit.log"</span>
+  }
+]</div>
+
+  <div class="codeblock">
+<span class="label">block writes outside src/ (preToolUse, exit 2 = block)</span><span class="key">"preToolUse"</span>: [
+  {
+    <span class="key">"matcher"</span>: <span class="str">"fs_write"</span>,
+    <span class="key">"command"</span>: <span class="str">"python3 -c \"import sys,json; d=json.load(sys.stdin); path=d.get('tool_input',{}).get('path',''); sys.exit(2 if not path.startswith('./src') else 0)\""</span>
+  }
+]</div>
+
+  <div class="tip"><strong>Context injection via userPromptSubmit:</strong> Run a script that fetches the current sprint's open tickets from your MCP tool and injects them into every prompt. The agent always knows what's in-flight.</div>
+
+  <div class="warn"><strong>Cache your hooks:</strong> Add <code>"cache_ttl_seconds": 300</code> to expensive hooks (like AWS identity checks or ticket fetches) to avoid redundant network calls on every prompt.</div>
+</div>
+
+<!-- SUBAGENTS -->
+<div id="section-subagents" class="section">
+  <div class="section-header">
+    <div class="section-icon icon-orange">🔀</div>
+    <div>
+      <div class="section-title">Subagents & Parallel Execution</div>
+      <div class="section-desc">Delegate complex tasks. Run multiple workstreams simultaneously.</div>
+    </div>
+  </div>
+
+  <p>Subagents run autonomously with their own context window, keeping the parent agent's context focused. This is Kiro v2's biggest productivity multiplier for complex multi-part work.</p>
+
+  <div class="tip"><strong>Core pattern:</strong> Teams are using subagents to parallelize work while protecting the parent agent's context. Think of it as spawning specialized workers that report back, rather than one agent context-switching between tasks.</div>
+
+  <h3>When to Use Subagents</h3>
+  <div class="cards">
+    <div class="card">
+      <div class="card-tag tag-orange">Parallelizable</div>
+      <div class="card-title">Independent feature slices</div>
+      <div class="card-body">Implement service A + service B simultaneously in separate contexts. No interference, full speed.</div>
+    </div>
+    <div class="card">
+      <div class="card-tag tag-orange">Context isolation</div>
+      <div class="card-title">Deep-dive investigations</div>
+      <div class="card-body">Send a subagent to trace a bug through 10 files while parent agent continues planning.</div>
+    </div>
+    <div class="card">
+      <div class="card-tag tag-orange">Specialized agents</div>
+      <div class="card-title">Spawn your custom agents</div>
+      <div class="card-body">Parent orchestrates. Subagents use your specialist configs (reviewer, aws-specialist, etc.).</div>
+    </div>
+    <div class="card">
+      <div class="card-tag tag-orange">Long-running tasks</div>
+      <div class="card-title">Background execution</div>
+      <div class="card-body">Generate tests while you write the next feature. Track progress via live status bar.</div>
+    </div>
+  </div>
+
+  <h3>Live Progress Tracking</h3>
+  <p>Use the TUI (<code>kiro-cli --tui</code> or <code>kiro-cli settings chat.ui "tui"</code>) to get a live status bar and task list showing all subagent progress simultaneously. Essential for parallel workflows.</p>
+
+  <h3>Plan Agent (Built-in)</h3>
+  <p>Kiro v2 ships a built-in Plan agent that breaks complex prompts into structured implementation plans. Before telling it to implement, ask it to plan first:</p>
+
+  <div class="codeblock">
+<span class="label">planning workflow</span><span class="comment"># Phase 1: get the plan</span>
+<span class="cmd">/agent swap</span> kiro_plan
+I need to add distributed tracing to our marketing advisor Lambda functions.
+Analyze the codebase and produce a sequenced implementation plan.
+
+<span class="comment"># Phase 2: review + approve plan</span>
+<span class="comment"># Phase 3: swap to implementer and execute</span>
+<span class="cmd">/agent swap</span> implementer
+Execute task 1 from the plan: instrument the conversational layer.</div>
+</div>
+
+<!-- CODE INTEL -->
+<div id="section-codeintel" class="section">
+  <div class="section-header">
+    <div class="section-icon icon-teal">🔍</div>
+    <div>
+      <div class="section-title">Code Intelligence (LSP)</div>
+      <div class="section-desc">Full IDE-grade code understanding in your terminal</div>
+    </div>
+  </div>
+
+  <p>Run <code>/code init</code> once per project to unlock LSP-powered intelligence. Kiro spawns language server processes, maintains a live symbol index, and translates your natural language into LSP queries.</p>
+
+  <h3>What You Unlock</h3>
+  <div class="cards">
+    <div class="card">
+      <div class="card-tag tag-teal">Find References</div>
+      <div class="card-title">"Who calls this?"</div>
+      <div class="card-body">Natural language: "What code calls the checkout_session_create function?" — no grep hunting.</div>
+    </div>
+    <div class="card">
+      <div class="card-tag tag-teal">Hover Docs</div>
+      <div class="card-title">"What does this do?"</div>
+      <div class="card-body">"What does the s3Client.putObject method accept?" — API exploration without switching context.</div>
+    </div>
+    <div class="card">
+      <div class="card-tag tag-teal">Safe Rename</div>
+      <div class="card-title">Refactor confidently</div>
+      <div class="card-body">Preview with dry_run before applying. Renames across the entire codebase atomically.</div>
+    </div>
+    <div class="card">
+      <div class="card-tag tag-teal">Diagnostics</div>
+      <div class="card-title">Type errors surfaced</div>
+      <div class="card-body">Agent sees the same errors your IDE would — better, more accurate code generation.</div>
+    </div>
+  </div>
+
+  <h3>Setup</h3>
+  <div class="codeblock">
+<span class="label">one-time per project</span><span class="comment"># Run in project root</span>
+<span class="cmd">/code init</span>
+
+<span class="comment"># Kiro detects language from package.json, Cargo.toml, pyproject.toml etc.</span>
+<span class="comment"># Starts LSP server in background, indexes symbols</span>
+<span class="comment"># Then ask naturally:</span>
+What are all the places PlanGraph.execute() is called from?
+What methods does the StrategyCatalog class expose?</div>
+
+  <div class="tip"><strong>Best practice:</strong> Configure grep allowedPaths in your agent config to constrain symbol search to relevant directories. Avoids noise from node_modules, .venv, generated files.</div>
+</div>
+
+<!-- EXPERIMENTS -->
+<div id="section-experiments" class="section">
+  <div class="section-header">
+    <div class="section-icon icon-yellow">🧪</div>
+    <div>
+      <div class="section-title">Experimental Features</div>
+      <div class="section-desc">Bleeding edge — enable with /experiment</div>
+    </div>
+  </div>
+
+  <p>Toggle experiments with <code>/experiment</code>. These are in active development but often highly useful. May change or be removed.</p>
+
+  <div class="exp-grid">
+    <div class="exp-item">
+      <div class="exp-name">persistent-memory</div>
+      <div class="exp-desc">Semantic search across past sessions. Find context from conversations weeks ago without re-explaining.</div>
+    </div>
+    <div class="exp-item">
+      <div class="exp-name">tangent-mode</div>
+      <div class="exp-desc">Conversation checkpoints. Explore a risky approach in a side branch, then return to main flow cleanly.</div>
+    </div>
+    <div class="exp-item">
+      <div class="exp-name">todo-tracking</div>
+      <div class="exp-desc">Auto-creates and maintains TODO lists during complex tasks. Agent tracks its own progress across a long session.</div>
+    </div>
+    <div class="exp-item">
+      <div class="exp-name">extended-thinking</div>
+      <div class="exp-desc">Shows step-by-step reasoning for complex problems. Use for architecture decisions or subtle bugs.</div>
+    </div>
+  </div>
+
+  <div class="warn"><strong>Production caution:</strong> Don't rely on experimental features in hooks or CI pipelines — they can be toggled off in any release. Use stable features for automation.</div>
+
+  <h3>TUI Mode (Graduated to Default in v2)</h3>
+  <p>The terminal UI is now the default in v2. Enable permanently with:</p>
+  <div class="codeblock">
+kiro-cli settings chat.ui <span class="str">"tui"</span>
+
+<span class="comment"># What you get:</span>
+<span class="comment"># - Live status bar with real-time tool progress</span>
+<span class="comment"># - Rich markdown rendering with syntax-highlighted code</span>
+<span class="comment"># - Interactive panels for context / session management</span>
+<span class="comment"># - Subagent progress tracking</span>
+<span class="comment"># - --list-models flag to check available models</span></div>
+</div>
+
+<!-- HEADLESS -->
+<div id="section-headless" class="section">
+  <div class="section-header">
+    <div class="section-icon icon-orange">🤖</div>
+    <div>
+      <div class="section-title">Headless Mode & CI/CD</div>
+      <div class="section-desc">Run Kiro agents in pipelines, containers, and cron jobs</div>
+    </div>
+  </div>
+
+  <p>Headless mode (v2) runs Kiro without a browser, using an API key. Same tools, same agents, same MCP servers — fully automated, no human input required.</p>
+
+  <h3>Setup</h3>
+  <div class="codeblock">
+<span class="label">environment</span><span class="comment"># Generate API key in Kiro dashboard</span>
+<span class="key">export</span> KIRO_API_KEY=<span class="str">"your-api-key"</span>
+
+<span class="comment"># Run a prompt non-interactively</span>
+kiro-cli <span class="flag">--headless</span> <span class="flag">--prompt</span> <span class="str">"Review changes in the last commit and create a PR comment"</span>
+
+<span class="comment"># Pipe output</span>
+kiro-cli <span class="flag">--headless</span> <span class="flag">--prompt</span> <span class="str">"Generate unit tests for src/handlers/"</span> | tee test-gen.log</div>
+
+  <h3>CI/CD Use Cases</h3>
+  <div class="cards">
+    <div class="card">
+      <div class="card-tag tag-green">PR Review Bot</div>
+      <div class="card-title">Auto-review on push</div>
+      <div class="card-body">Trigger your code-review agent on every PR. Posts comments via your ticket MCP tool. Zero human review queue overhead.</div>
+    </div>
+    <div class="card">
+      <div class="card-tag tag-green">Test Generation</div>
+      <div class="card-title">Coverage on new code</div>
+      <div class="card-body">On merge to main, run your implementer agent to generate tests for any new functions without test coverage.</div>
+    </div>
+    <div class="card">
+      <div class="card-tag tag-green">Doc Refresh</div>
+      <div class="card-title">Stale doc detection</div>
+      <div class="card-body">Weekly cron: scan changed files, identify docs that are out of sync, open tickets via MCP.</div>
+    </div>
+    <div class="card">
+      <div class="card-tag tag-green">Incident Response</div>
+      <div class="card-title">CloudWatch → analysis</div>
+      <div class="card-body">On alarm trigger, run your debugger agent against recent logs and post a structured incident summary to Slack.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PLAYBOOK -->
+<div id="section-playbook" class="section">
+  <div class="section-header">
+    <div class="section-icon icon-purple">🗂️</div>
+    <div>
+      <div class="section-title">Nick's Agentic Playbook</div>
+      <div class="section-desc">Recipes tailored for your stack: Strands, Lambda, marketing advisor, MCP-connected workflows</div>
+    </div>
+  </div>
+
+  <h3>Recipe 1: Ticket → Implementation → PR (zero manual steps)</h3>
+  <div class="workflow">
+    <div class="wf-step">Fetch ticket via MCP</div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step">Plan agent</div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step">Implementer agent</div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step">Review agent</div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step">Create PR via MCP</div>
+  </div>
+
+  <div class="codeblock">
+<span class="label">prompt to kick off full workflow</span>Fetch ticket MKTG-247 from Jira.
+Analyze the requirements, create an implementation plan, then implement it.
+When done, run tests and if they pass, open a PR with a summary of the changes
+and a link back to the ticket.</div>
+
+  <h3>Recipe 2: Strands Graph Debugging</h3>
+  <div class="codeblock">
+<span class="label">debugging a plan graph node</span><span class="comment"># With LSP initialized + aws-specialist agent active</span>
+The budget_optimizer node in our Strands plan graph is producing incorrect
+recommendations for campaigns with ROAS > 4. Here's the failing test:
+
+@tests/test_budget_optimizer.py
+
+Use CloudWatch Logs to pull the last 5 Lambda invocations that triggered this
+node and cross-reference with the node's input/output schema at @src/graph/nodes/budget_optimizer.py</div>
+
+  <h3>Recipe 3: Observability Coverage Audit</h3>
+  <div class="codeblock">
+<span class="label">observability gap analysis</span>Audit @src/handlers/ for observability gaps:
+1. Which handlers are missing OpenTelemetry span creation?
+2. Which handlers aren't emitting EMF metrics for business events?
+3. Which errors are caught but not logged with structured context?
+
+Produce a prioritized list and create a ticket for each gap via our Jira MCP.</div>
+
+  <h3>Recipe 4: ADR Generation</h3>
+  <p>Given you've been working through architecture trade-offs, automate ADR creation:</p>
+  <div class="codeblock">
+<span class="label">adr workflow</span>We just decided to use Step Functions instead of Lambda for plan generation
+because of the hard-kill timeout behavior we've been hitting.
+
+Write an ADR in @docs/adr/ following the standard format. Include:
+- Context (Lambda hard-kill, cold start, long-running graph issue)
+- Decision
+- Consequences (trade-offs per our steering file on architecture principles)
+- Alternatives considered</div>
+
+  <h3>Recipe 5: Steering File for Your Marketing Advisor</h3>
+  <div class="codeblock">
+<span class="label">.kiro/steering/marketing-advisor.md (template)</span><span class="comment"># Marketing Advisor Product Context
+
+## Product
+Conversational assistant + graph-based plan generation for ecommerce sellers.
+Backend: AWS Lambda + Strands framework. MCP-connected marketing APIs.
+
+## Architecture rules
+- All LLM calls must include a correlation trace ID passed from the API gateway
+- Lambda functions must flush OTEL spans before returning (ADOT layer pattern)
+- Use EMF for business metrics, X-Ray for distributed tracing
+- Plan generation graph nodes must be idempotent
+
+## Seller data model
+[key entities, IDs, relationships]
+
+## Marketing API conventions
+[request/response patterns, rate limits, error handling]
+
+## What NOT to do
+- Never suggest synchronous calls for plan generation (timeout risk)
+- Don't use environment variables directly — always use SSM parameter store</span></div>
+
+  <div class="tip"><strong>The compounding flywheel:</strong> Every time you correct the agent or add context mid-conversation, ask yourself: should this be in a steering file? A few weeks of encoding your domain knowledge into steering files + well-configured agents will make every subsequent task 10x faster.</div>
+</div>
+
+</main>
+</div>
+
+<script>
+  const navItems = document.querySelectorAll('.nav-item');
+  const sections = document.querySelectorAll('.section');
+
+  function show(id) {
+    // Update nav
+    navItems.forEach(item => {
+      item.classList.toggle('active', item.getAttribute('onclick') === `show('${id}')`);
+    });
+    // Update sections
+    sections.forEach(section => {
+      section.classList.toggle('active', section.id === `section-${id}`);
+    });
+  }
+</script>
+</body>
+</html>
